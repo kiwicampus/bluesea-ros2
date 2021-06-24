@@ -738,6 +738,7 @@ int main(int argc, char* argv[])
             PublishLaserScan(laser_pub, laser_msg, n, fans, frame_id, max_dist, with_angle_filter, min_angle, max_angle,
                              inverted, reversed);
         }
+        delete[] fans;
         loop_rate.sleep();
     }
 

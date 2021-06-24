@@ -730,7 +730,7 @@ int main(int argc, char* argv[])
     {
         rclcpp::spin_some(node);
 
-        RawData* fans[MAX_FANS];
+        RawData* fans = new RawData[MAX_FANS];
 
         int n = GetAllFans(hub, with_soft_resample, resample_res, fans);
         if (n > 0)

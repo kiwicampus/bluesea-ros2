@@ -726,11 +726,10 @@ int main(int argc, char* argv[])
     auto laser_msg = std::make_shared<sensor_msgs::msg::LaserScan>();
     rclcpp::WallRate loop_rate(100);
 
+    RawData* fans[MAX_FANS];
     while (rclcpp::ok())
     {
         rclcpp::spin_some(node);
-
-        RawData* fans = new RawData[MAX_FANS];
 
         int n = GetAllFans(hub, with_soft_resample, resample_res, fans);
         if (n > 0)
@@ -738,10 +737,10 @@ int main(int argc, char* argv[])
             PublishLaserScan(laser_pub, laser_msg, n, fans, frame_id, max_dist, with_angle_filter, min_angle, max_angle,
                              inverted, reversed);
         }
-        delete[] fans;
+
         loop_rate.sleep();
     }
-
+    free(fans);
     rclcpp::shutdown();
     return 0;
 }

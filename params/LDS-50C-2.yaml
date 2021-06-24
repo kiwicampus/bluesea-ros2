@@ -2,7 +2,7 @@ bluesea_node:
   ros__parameters:
     type: uart
     platform: LDS-50C-2
-    port: /dev/ttyUSB1
+    port: /dev/ttyUSB0
     frame_id: map
     rate_list: 500000, 768000, 921600
     baud_rate: 500000

@@ -412,13 +412,13 @@ int time_cmp(const uint32_t* t1, const uint32_t* t2)
     return 0;
 }
 
-void PublishLaserScan(rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_pub, int nfan, RawData** fans,
-                      std::string& frame_id, double max_dist, bool with_filter, double min_ang, double max_ang,
-                      bool inverted, bool reversed)
+void PublishLaserScan(rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_pub,
+                      sensor_msgs::msg::LaserScan::SharedPtr msg, int nfan, RawData** fans, std::string& frame_id,
+                      double max_dist, bool with_filter, double min_ang, double max_ang, bool inverted, bool reversed)
 {
-    sensor_msgs::msg::LaserScan msg;
+    // sensor_msgs::msg::LaserScan msg;
 
-    msg.header.frame_id = frame_id;
+    msg->header.frame_id = frame_id;
 
     int N = 0;
 
@@ -442,66 +442,66 @@ void PublishLaserScan(rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr 
         // printf("%d %d.%d\n", fans[i]->angle, fans[i]->ts[0], fans[i]->ts[1]);
     }
 
-    msg.header.stamp.sec = mi[0];
-    msg.header.stamp.nanosec = mi[1];
+    msg->header.stamp.sec = mi[0];
+    msg->header.stamp.nanosec = mi[1];
 
     double tx = double(mx[0]) + double(mx[1]) / 1000000000.0;
     double ti = double(mi[0]) + double(mi[1]) / 1000000000.0;
-    msg.scan_time = (tx - ti) * nfan / (nfan - 1);
-    msg.time_increment = msg.scan_time / N;
+    msg->scan_time = (tx - ti) * nfan / (nfan - 1);
+    msg->time_increment = msg->scan_time / N;
 
-    // printf("%d.%d -> %d.%d = %f %f\n", mi[0], mi[1], mx[0], mx[1], msg.scan_time, msg.time_increment);
+    // printf("%d.%d -> %d.%d = %f %f\n", mi[0], mi[1], mx[0], mx[1], msg->scan_time, msg->time_increment);
 
-    // msg.header.stamp = ros::Time::now();
+    // msg->header.stamp = ros::Time::now();
 
 #if 0
 	static uint32_t last_ns = 0;
-	printf("tv %d\n", msg.header.stamp.nsec < last_ns ? (msg.header.stamp.nsec + (1000000000- last_ns)) : msg.header.stamp.nsec - last_ns);
-	last_ns = msg.header.stamp.nsec;
+	printf("tv %d\n", msg->header.stamp.nsec < last_ns ? (msg->header.stamp.nsec + (1000000000- last_ns)) : msg->header.stamp.nsec - last_ns);
+	last_ns = msg->header.stamp.nsec;
 #endif
 
-    msg.header.frame_id = frame_id;
+    msg->header.frame_id = frame_id;
 
     double min_deg = min_ang * 180 / M_PI;
     double max_deg = max_ang * 180 / M_PI;
 
-    msg.range_min = 0.;
-    msg.range_max = max_dist;  // 8.0;
+    msg->range_min = 0.;
+    msg->range_max = max_dist;  // 8.0;
 
     if (with_filter)
     {
         N = GetCount(nfan, fans, min_deg, max_deg);
         if (inverted)
         {
-            msg.angle_min = min_ang;
-            msg.angle_max = max_ang;
-            msg.angle_increment = (max_ang - min_ang) / N;
+            msg->angle_min = min_ang;
+            msg->angle_max = max_ang;
+            msg->angle_increment = (max_ang - min_ang) / N;
         }
         else
         {
-            msg.angle_min = max_ang;
-            msg.angle_max = min_ang;
-            msg.angle_increment = (min_ang - max_ang) / N;
+            msg->angle_min = max_ang;
+            msg->angle_max = min_ang;
+            msg->angle_increment = (min_ang - max_ang) / N;
         }
     }
     else
     {
         if (inverted)
         {
-            msg.angle_min = -M_PI;
-            msg.angle_max = M_PI;
-            msg.angle_increment = M_PI * 2 / N;
+            msg->angle_min = -M_PI;
+            msg->angle_max = M_PI;
+            msg->angle_increment = M_PI * 2 / N;
         }
         else
         {
-            msg.angle_min = M_PI;
-            msg.angle_max = -M_PI;
-            msg.angle_increment = -M_PI * 2 / N;
+            msg->angle_min = M_PI;
+            msg->angle_max = -M_PI;
+            msg->angle_increment = -M_PI * 2 / N;
         }
     }
 
-    msg.intensities.resize(N);
-    msg.ranges.resize(N);
+    msg->intensities.resize(N);
+    msg->ranges.resize(N);
 
     N = 0;
     if (reversed)
@@ -518,11 +518,11 @@ void PublishLaserScan(rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr 
 
                 double d = fans[j]->points[i].distance / 1000.0;
                 if (fans[j]->points[i].distance == 0 || d > max_dist)
-                    msg.ranges[N] = std::numeric_limits<float>::infinity();
+                    msg->ranges[N] = std::numeric_limits<float>::infinity();
                 else
-                    msg.ranges[N] = d;
+                    msg->ranges[N] = d;
 
-                msg.intensities[N] = fans[j]->points[i].confidence;
+                msg->intensities[N] = fans[j]->points[i].confidence;
                 N++;
             }
         }
@@ -541,17 +541,17 @@ void PublishLaserScan(rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr 
 
                 double d = fans[j]->points[i].distance / 1000.0;
                 if (fans[j]->points[i].distance == 0 || d > max_dist)
-                    msg.ranges[N] = std::numeric_limits<float>::infinity();
+                    msg->ranges[N] = std::numeric_limits<float>::infinity();
                 else
-                    msg.ranges[N] = d;
+                    msg->ranges[N] = d;
 
-                msg.intensities[N] = fans[j]->points[i].confidence;
+                msg->intensities[N] = fans[j]->points[i].confidence;
                 N++;
             }
         }
     }
 
-    laser_pub->publish(msg);
+    laser_pub->publish(*msg);
 }
 
 #if 0
@@ -622,6 +622,7 @@ void split(const std::string& s, char delim, int* elems)
 
 #define READ_PARAM(TYPE, NAME, VAR, INIT) \
     TYPE VAR = INIT;                      \
+    node->declare_parameter(NAME);        \
     node->get_parameter(NAME, VAR);
 
 int main(int argc, char* argv[])
@@ -650,8 +651,8 @@ int main(int argc, char* argv[])
     READ_PARAM(int, "dev_id", dev_id, ANYONE);  //
 
     // raw data format
-    // READ_PARAM(int, "normal_size", normal_size, -1); // -1 : allow all packet, N : drop packets whose points less
-    // than N
+    // READ_PARAM(int, "normal_size", normal_size, -1); // -1 : allow all packet, N : drop packets whose points
+    // less than N
     READ_PARAM(int, "raw_bytes", raw_bytes, 3);                  // packet mode : 2bytes or 3bytes
     READ_PARAM(bool, "unit_is_mm", unit_is_mm, true);            // 0 : distance is CM, 1: MM
     READ_PARAM(bool, "with_confidence", with_confidence, true);  //
@@ -677,10 +678,8 @@ int main(int argc, char* argv[])
     // data output
     // READ_PARAM(bool, "output_scan", output_scan, true); // true: enable output angle+distance mode, 0: disable
     // READ_PARAM(bool, "output_cloud", output_cloud, false); // false: enable output xyz format, 0 : disable
-    // READ_PARAM(bool, "output_360", output_360, true); // true: packet data of 360 degree (multiple RawData), publish
-    // once
-    // false: publish every RawData (36 degree)
-    // RPM
+    // READ_PARAM(bool, "output_360", output_360, true); // true: packet data of 360 degree (multiple RawData),
+    // publish once false: publish every RawData (36 degree) RPM
     READ_PARAM(int, "rpm", init_rpm, -1);  // set motor RPM
 
     // angle filter
@@ -724,7 +723,7 @@ int main(int argc, char* argv[])
     }
 
     auto laser_pub = node->create_publisher<sensor_msgs::msg::LaserScan>("scan", rclcpp::SensorDataQoS());
-
+    auto laser_msg = std::make_shared<sensor_msgs::msg::LaserScan>();
     rclcpp::WallRate loop_rate(100);
 
     while (rclcpp::ok())
@@ -736,8 +735,8 @@ int main(int argc, char* argv[])
         int n = GetAllFans(hub, with_soft_resample, resample_res, fans);
         if (n > 0)
         {
-            PublishLaserScan(laser_pub, n, fans, frame_id, max_dist, with_angle_filter, min_angle, max_angle, inverted,
-                             reversed);
+            PublishLaserScan(laser_pub, laser_msg, n, fans, frame_id, max_dist, with_angle_filter, min_angle, max_angle,
+                             inverted, reversed);
         }
         else
         {

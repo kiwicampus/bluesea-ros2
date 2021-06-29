@@ -121,8 +121,8 @@ void resample(RawData* dat, int NN)
 
     dat->N = NN;
 
-    delete index;
-    delete errs;
+    delete []index;
+    delete []errs;
 }
 
 bool GetFan(HPublish pub, bool with_resample, double resample_res, RawData** fans)

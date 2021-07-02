@@ -121,8 +121,8 @@ void resample(RawData* dat, int NN)
 
     dat->N = NN;
 
-    delete []index;
-    delete []errs;
+    delete[] index;
+    delete[] errs;
 }
 
 bool GetFan(HPublish pub, bool with_resample, double resample_res, RawData** fans)
@@ -412,11 +412,11 @@ int time_cmp(const uint32_t* t1, const uint32_t* t2)
     return 0;
 }
 
-void PublishLaserScan(rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_pub,
-                      sensor_msgs::msg::LaserScan::SharedPtr msg, int nfan, RawData** fans, std::string& frame_id,
-                      double max_dist, bool with_filter, double min_ang, double max_ang, bool inverted, bool reversed)
+void PublishLaserScan(rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_pub, int nfan, RawData** fans,
+                      std::string& frame_id, double max_dist, bool with_filter, double min_ang, double max_ang,
+                      bool inverted, bool reversed)
 {
-    // sensor_msgs::msg::LaserScan msg;
+    auto msg = std::make_shared<sensor_msgs::msg::LaserScan>();
 
     msg->header.frame_id = frame_id;
 
@@ -627,150 +627,150 @@ void split(const std::string& s, char delim, int* elems)
 
 int main(int argc, char* argv[])
 {
-	rclcpp::init(argc, argv);
+    rclcpp::init(argc, argv);
     auto node = rclcpp::Node::make_shared("bluesea_node");
 
-	READ_PARAM(std::string, "type", type, "uart");
-	g_type = type;
-	
+    READ_PARAM(std::string, "type", type, "uart");
+    g_type = type;
 
-	READ_PARAM(std::string, "platform", platform, "LDS-50C-S");
+    READ_PARAM(std::string, "platform", platform, "LDS-50C-S");
 
-	// for serial port comm
-	READ_PARAM(std::string, "port", port, "/dev/ttyUSB0");
-	READ_PARAM(int, "baud_rate", baud_rate, 500000);
+    // for serial port comm
+    READ_PARAM(std::string, "port", port, "/dev/ttyUSB0");
+    READ_PARAM(int, "baud_rate", baud_rate, 500000);
 
+    READ_PARAM(std::string, "rate_list", rate_list, "230400,256000,500000,768000,1000000");
+    int rates[100];
+    split(rate_list, ',', rates);
 
-	READ_PARAM(std::string, "rate_list", rate_list, "230400,256000,500000,768000,1000000");
-	int rates[100];
-	split(rate_list, ',', rates);
+    // for network comm
+    READ_PARAM(std::string, "lidar_ip", lidar_ip, "192.168.158.91");
+    READ_PARAM(std::string, "group_ip", group_ip, "224.1.1.91");
+    READ_PARAM(int, "lidar_port", lidar_port, 5000);
+    READ_PARAM(int, "local_port", local_port, 50122);
 
-	// for network comm
-	READ_PARAM(std::string, "lidar_ip", lidar_ip, "192.168.158.91");
-	READ_PARAM(std::string, "group_ip", group_ip, "224.1.1.91");
-	READ_PARAM(int, "lidar_port", lidar_port, 5000);
-	READ_PARAM(int, "local_port", local_port, 50122);
+    // device identity in data packets, used when multiple lidars connect to single controller
+    READ_PARAM(int, "dev_id", dev_id, ANYONE);  //
 
-	// device identity in data packets, used when multiple lidars connect to single controller
-	READ_PARAM(int, "dev_id", dev_id, ANYONE); // 
+    // raw data format
+    // READ_PARAM(int, "normal_size", normal_size, -1); // -1 : allow all packet, N : drop packets whose points less
+    // than N
+    READ_PARAM(int, "raw_bytes", raw_bytes, 3);                  // packet mode : 2bytes or 3bytes
+    READ_PARAM(bool, "unit_is_mm", unit_is_mm, true);            // 0 : distance is CM, 1: MM
+    READ_PARAM(bool, "with_confidence", with_confidence, true);  //
+    READ_PARAM(bool, "with_checksum", with_chk, true);           // true : enable packet checksum
 
-	// raw data format
-       	//READ_PARAM(int, "normal_size", normal_size, -1); // -1 : allow all packet, N : drop packets whose points less than N 
-	READ_PARAM(int, "raw_bytes", raw_bytes, 3); // packet mode : 2bytes or 3bytes
-	READ_PARAM(bool, "unit_is_mm", unit_is_mm, true); // 0 : distance is CM, 1: MM
-       	READ_PARAM(bool, "with_confidence", with_confidence, true); // 
-       	READ_PARAM(bool, "with_checksum", with_chk, true); // true : enable packet checksum
+    // is lidar inverted
+    READ_PARAM(bool, "inverted", inverted, false);
+    READ_PARAM(bool, "reversed", reversed, false);
 
-	// is lidar inverted
-       	READ_PARAM(bool, "inverted", inverted, false); 
-       	READ_PARAM(bool, "reversed", reversed, false); 
+    READ_PARAM(bool, "with_smooth", with_smooth, true);      // lidar data smooth filter
+    READ_PARAM(bool, "with_deshadow", with_deshadow, true);  // data shadow filter
 
-       	READ_PARAM(bool, "with_smooth", with_smooth, true); //lidar data smooth filter
-       	READ_PARAM(bool, "with_deshadow", with_deshadow, true); //data shadow filter
+    // angle composate
+    READ_PARAM(bool, "hard_resample", hard_resample, true);       // resample angle resolution
+    READ_PARAM(bool, "soft_resample", with_soft_resample, true);  // resample angle resolution
+    READ_PARAM(double, "resample_res", resample_res, 0.5);        // resample angle resolution @ 0.5 degree
+    if (resample_res < 0.05 || resample_res > 1)
+    {
+        with_soft_resample = false;
+        hard_resample = false;
+    }
 
-	// angle composate
-       	READ_PARAM(bool, "hard_resample", hard_resample, true); // resample angle resolution
-       	READ_PARAM(bool, "soft_resample", with_soft_resample, true); // resample angle resolution
-       	READ_PARAM(double, "resample_res", resample_res, 0.5); // resample angle resolution @ 0.5 degree 
-	if (resample_res < 0.05 || resample_res > 1) {
-		with_soft_resample = false;
-		hard_resample = false;
-	}
+    // data output
+    // READ_PARAM(bool, "output_scan", output_scan, true); // true: enable output angle+distance mode, 0: disable
+    // READ_PARAM(bool, "output_cloud", output_cloud, false); // false: enable output xyz format, 0 : disable
+    // READ_PARAM(bool, "output_360", output_360, true); // true: packet data of 360 degree (multiple RawData), publish
+    // once
+    // false: publish every RawData (36 degree)
+    // RPM
+    READ_PARAM(int, "rpm", init_rpm, -1);  // set motor RPM
 
-	// data output
-	//READ_PARAM(bool, "output_scan", output_scan, true); // true: enable output angle+distance mode, 0: disable
-	//READ_PARAM(bool, "output_cloud", output_cloud, false); // false: enable output xyz format, 0 : disable
-	//READ_PARAM(bool, "output_360", output_360, true); // true: packet data of 360 degree (multiple RawData), publish once
-							// false: publish every RawData (36 degree)
-	// RPM
-	READ_PARAM(int, "rpm", init_rpm, -1); // set motor RPM
-							
-	// angle filter
-	READ_PARAM(bool, "with_angle_filter", with_angle_filter, false); // true: enable angle filter, false: disable
-	READ_PARAM(double, "min_angle", min_angle, -M_PI); // angle filter's low threshold, default value: -pi
-       	READ_PARAM(double, "max_angle", max_angle, M_PI); // angle filters' up threashold, default value: pi
+    // angle filter
+    READ_PARAM(bool, "with_angle_filter", with_angle_filter, false);  // true: enable angle filter, false: disable
+    READ_PARAM(double, "min_angle", min_angle, -M_PI);  // angle filter's low threshold, default value: -pi
+    READ_PARAM(double, "max_angle", max_angle, M_PI);   // angle filters' up threashold, default value: pi
 
-	// range limitation
-       	READ_PARAM(double, "max_dist", max_dist, 9999.0); // max detection range, default value: 9999M
+    // range limitation
+    READ_PARAM(double, "max_dist", max_dist, 9999.0);  // max detection range, default value: 9999M
 
-	// frame information
-       	READ_PARAM(std::string, "frame_id", frame_id, "LH_laser"); // could be used for rviz
-       //READ_PARAM(std::string, "firmware_version", firmware_number, 2);
+    // frame information
+    READ_PARAM(std::string, "frame_id", frame_id, "LH_laser");  // could be used for rviz
+    // READ_PARAM(std::string, "firmware_version", firmware_number, 2);
 
-		
-	uint32_t device_ability = get_device_ability(platform);
+    uint32_t device_ability = get_device_ability(platform);
 
-	//
-	uint32_t init_states = 0;
-	if (unit_is_mm) init_states |= DF_UNIT_IS_MM;
-	if (with_confidence) init_states |= DF_WITH_INTENSITY;
-	if (hard_resample) init_states |= DF_WITH_RESAMPLE;
-	if (with_smooth) init_states |= DF_SMOOTHED;
-	if (with_deshadow) init_states |= DF_DESHADOWED;
+    //
+    uint32_t init_states = 0;
+    if (unit_is_mm) init_states |= DF_UNIT_IS_MM;
+    if (with_confidence) init_states |= DF_WITH_INTENSITY;
+    if (hard_resample) init_states |= DF_WITH_RESAMPLE;
+    if (with_smooth) init_states |= DF_SMOOTHED;
+    if (with_deshadow) init_states |= DF_DESHADOWED;
 
-	HParser parser = ParserOpen(raw_bytes, device_ability, init_states, init_rpm, resample_res, with_chk, dev_id);
+    HParser parser = ParserOpen(raw_bytes, device_ability, init_states, init_rpm, resample_res, with_chk, dev_id);
 
-	PubHub* hub = new PubHub;
-	hub->nfan = 0;
-	pthread_mutex_init(&hub->mtx, NULL);
+    PubHub* hub = new PubHub;
+    hub->nfan = 0;
+    pthread_mutex_init(&hub->mtx, NULL);
 
-	if (g_type == "uart") 
-	{
-		g_reader = StartUartReader(port.c_str(), baud_rate, rates, parser, hub);
-	}
-	else if (g_type == "udp") 
-	{
-		g_reader = StartUDPReader(lidar_ip.c_str(), lidar_port,
-			       	group_ip.c_str(), local_port, parser, hub);
-	}
-	else if (g_type == "tcp") 
-	{
-		g_reader = StartTCPReader(lidar_ip.c_str(), lidar_port, parser, hub);
-	}
+    if (g_type == "uart")
+    {
+        g_reader = StartUartReader(port.c_str(), baud_rate, rates, parser, hub);
+    }
+    else if (g_type == "udp")
+    {
+        g_reader = StartUDPReader(lidar_ip.c_str(), lidar_port, group_ip.c_str(), local_port, parser, hub);
+    }
+    else if (g_type == "tcp")
+    {
+        g_reader = StartTCPReader(lidar_ip.c_str(), lidar_port, parser, hub);
+    }
 
+    auto laser_pub = node->create_publisher<sensor_msgs::msg::LaserScan>("scan", rclcpp::SensorDataQoS());
 
-	auto laser_pub = node->create_publisher<sensor_msgs::msg::LaserScan>("scan", rclcpp::SensorDataQoS());
+    rclcpp::WallRate loop_rate(100);
 
-	rclcpp::WallRate loop_rate(100);
+    while (rclcpp::ok())
+    {
+        rclcpp::spin_some(node);
 
-	while (rclcpp::ok()) 
-	{
-		rclcpp::spin_some(node);
+        RawData* fans[MAX_FANS];
 
-		RawData* fans[MAX_FANS];
+        int n = GetAllFans(hub, with_soft_resample, resample_res, fans);
+        if (n > 0)
+        {
+            PublishLaserScan(laser_pub, n, fans, frame_id, max_dist, with_angle_filter, min_angle, max_angle, inverted,
+                             reversed);
+            for (int i = 0; i < n; i++) delete fans[i];
+        }
+        else
+        {
+            loop_rate.sleep();
+        }
+    }
 
-		int n = GetAllFans(hub, with_soft_resample, resample_res, fans);
-		if (n > 0)
-		{ 
-			PublishLaserScan(laser_pub, n, fans, frame_id, max_dist, 
-					with_angle_filter, min_angle, max_angle, 
-					inverted, reversed);
-			for (int i=0; i<n; i++) delete fans[i];
-	       	} else {
-			loop_rate.sleep();
-		}
-	}
+    if (g_type == "uart")
+    {
+        StopUartReader(g_reader);
+    }
+    else if (g_type == "udp")
+    {
+        StopUDPReader(g_reader);
+    }
+    else if (g_type == "tcp")
+    {
+        StopTCPReader(g_reader);
+    }
 
-	if (g_type == "uart") 
-	{
-		StopUartReader(g_reader);
-	}
-	else if (g_type == "udp") 
-	{
-		StopUDPReader(g_reader);
-	}
-	else if (g_type == "tcp") 
-	{
-		StopTCPReader(g_reader);
-	}
+    ParserClose(parser);
 
-	ParserClose(parser);
+    for (int i = 0; i < hub->nfan; i++)
+    {
+        delete hub->fans[i];
+    }
+    delete hub;
 
-	for (int i=0; i<hub->nfan; i++) {
-		delete hub->fans[i];
-	}
-	delete hub;
-
-       	rclcpp::shutdown();
-       	return 0;
+    rclcpp::shutdown();
+    return 0;
 }

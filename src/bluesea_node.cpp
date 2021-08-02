@@ -573,12 +573,12 @@ void setup_params(bluesea2::DynParamsConfig &config, uint32_t level)
 
 #endif
 
-// bool should_start = true;
+bool should_start = true;
 // service call back function
 bool stop_motor(const std::shared_ptr<std_srvs::srv::Empty::Request> req,
                 std::shared_ptr<std_srvs::srv::Empty::Response> res)
 {
-    // should_start = false;
+    should_start = false;
     ROS_INFO("Stop LIDAR motor");
     char cmd[] = "LSTOPH";
     return SendCmd(6, cmd);
@@ -588,7 +588,7 @@ bool stop_motor(const std::shared_ptr<std_srvs::srv::Empty::Request> req,
 bool start_motor(const std::shared_ptr<std_srvs::srv::Empty::Request> req,
                  std::shared_ptr<std_srvs::srv::Empty::Response> res)
 {
-    // should_start = true;
+    should_start = true;
     ROS_INFO("Start LIDAR motor");
     char cmd[] = "LSTARH";
     return SendCmd(6, cmd);
@@ -746,15 +746,21 @@ int main(int argc, char* argv[])
     while (rclcpp::ok())
     {
         rclcpp::spin_some(node);
-
-        RawData* fans[MAX_FANS];
-
-        int n = GetAllFans(hub, with_soft_resample, resample_res, fans);
-        if (n > 0)
+        if (should_start)
         {
-            PublishLaserScan(laser_pub, n, fans, frame_id, max_dist, with_angle_filter, min_angle, max_angle, inverted,
-                             reversed);
-            for (int i = 0; i < n; i++) delete fans[i];
+            RawData* fans[MAX_FANS];
+
+            int n = GetAllFans(hub, with_soft_resample, resample_res, fans);
+            if (n > 0)
+            {
+                PublishLaserScan(laser_pub, n, fans, frame_id, max_dist, with_angle_filter, min_angle, max_angle,
+                                 inverted, reversed);
+                for (int i = 0; i < n; i++) delete fans[i];
+            }
+            else
+            {
+                loop_rate.sleep();
+            }
         }
         else
         {

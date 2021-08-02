@@ -10,6 +10,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rmw REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 # uncomment the following section in order to fill in
@@ -22,6 +23,7 @@ ament_target_dependencies(bluesea_node
   "sensor_msgs"
   "visualization_msgs"
   "geometry_msgs"
+  "std_srvs"
 )
 
 

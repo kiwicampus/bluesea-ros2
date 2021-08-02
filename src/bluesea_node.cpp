@@ -2,6 +2,7 @@
 #include <signal.h>
 #include <cstdio>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -11,10 +12,15 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time_source.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
+#include "std_srvs/srv/empty.hpp"
+
+#include "rclcpp/clock.hpp"
+
 //#include "timer.h"
 #include "reader.h"
 
 #define ROS2Verision "1.4.5"
+#define ROS_INFO printf
 
 HReader g_reader = NULL;
 std::string g_type = "uart";
@@ -569,7 +575,8 @@ void setup_params(bluesea2::DynParamsConfig &config, uint32_t level)
 
 // bool should_start = true;
 // service call back function
-bool stop_motor(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+bool stop_motor(const std::shared_ptr<std_srvs::srv::Empty::Request> req,
+                std::shared_ptr<std_srvs::srv::Empty::Response> res)
 {
     // should_start = false;
     ROS_INFO("Stop LIDAR motor");
@@ -578,13 +585,12 @@ bool stop_motor(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 }
 
 // service call back function
-bool start_motor(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+bool start_motor(const std::shared_ptr<std_srvs::srv::Empty::Request> req,
+                 std::shared_ptr<std_srvs::srv::Empty::Response> res)
 {
     // should_start = true;
-    char cmd[] = "LSTARH";
-
     ROS_INFO("Start LIDAR motor");
-
+    char cmd[] = "LSTARH";
     return SendCmd(6, cmd);
 }
 
@@ -629,6 +635,12 @@ int main(int argc, char* argv[])
 {
     rclcpp::init(argc, argv);
     auto node = rclcpp::Node::make_shared("bluesea_node");
+
+    /* create stop motor service */
+    auto stop_motor_service = node->create_service<std_srvs::srv::Empty>("/stop_motor", &stop_motor);
+
+    /* create start motor service */
+    auto start_motor_service = node->create_service<std_srvs::srv::Empty>("/start_motor", &start_motor);
 
     READ_PARAM(std::string, "type", type, "uart");
     g_type = type;

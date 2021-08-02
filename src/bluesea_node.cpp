@@ -565,28 +565,28 @@ void setup_params(bluesea2::DynParamsConfig &config, uint32_t level)
 	SendCmd(strlen(cmd), cmd);
 }
 
-
-bool should_start = true;
-// service call back function
-bool stop_motor(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
-{
-	should_start = false;
-	ROS_INFO("Stop motor");
-	char cmd[] = "LSTOPH";
-	return SendCmd(6, cmd);
-}
-
-// service call back function
-bool start_motor(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
-{
-	should_start = true;
-	char cmd[] = "LSTARH";
-
-	ROS_INFO("Stop motor");
-
-	return SendCmd(6, cmd);
-}
 #endif
+
+// bool should_start = true;
+// service call back function
+bool stop_motor(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+{
+    // should_start = false;
+    ROS_INFO("Stop LIDAR motor");
+    char cmd[] = "LSTOPH";
+    return SendCmd(6, cmd);
+}
+
+// service call back function
+bool start_motor(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+{
+    // should_start = true;
+    char cmd[] = "LSTARH";
+
+    ROS_INFO("Start LIDAR motor");
+
+    return SendCmd(6, cmd);
+}
 
 uint32_t get_device_ability(const std::string& platform)
 {

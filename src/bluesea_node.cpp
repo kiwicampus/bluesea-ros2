@@ -585,17 +585,7 @@ bool stop_motor(const std::shared_ptr<std_srvs::srv::Empty::Request> req,
     should_start = false;
     ROS_INFO("Stop LIDAR motor");
     char cmd[] = "LSTOPH";
-    bool response = SendCmd(6, cmd);
-    if (response)
-    {
-        count_start++;
-        ROS_INFO("stop number: %d", count_start);
-    }
-    else
-    {
-        ROS_INFO("NOT LIDAR, last start count: %d", count_start);
-    }
-    return response;
+    return SendCmd(6, cmd);
 }
 
 // service call back function
@@ -607,17 +597,7 @@ bool start_motor(const std::shared_ptr<std_srvs::srv::Empty::Request> req,
     should_start = true;
     ROS_INFO("Start LIDAR motor");
     char cmd[] = "LSTARH";
-    bool response = SendCmd(6, cmd);
-    if (response)
-    {
-        count_stop++;
-        ROS_INFO("stop number: %d", count_stop);
-    }
-    else
-    {
-        ROS_INFO("NOT LIDAR, last stop count: %d", count_stop);
-    }
-    return response;
+    return SendCmd(6, cmd);
 }
 
 uint32_t get_device_ability(const std::string& platform)

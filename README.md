@@ -11,14 +11,13 @@
 ---
 
 <p align="center">
-    <img src="https://user-images.githubusercontent.com/39452483/108378469-04f2ef00-71d3-11eb-8a37-e848525e6f34.png">
+    <video width="560" height="315" src="https://user-images.githubusercontent.com/39452483/129423561-7d5f272e-782d-4bcc-9811-37b1513c4dcd.mp4" frameborder="0" allowfullscreen></video>
 </p>
 
 <p align="center">
     bluesea
 </p>
 
-<video width="560" height="315" src="https://user-images.githubusercontent.com/39452483/129423561-7d5f272e-782d-4bcc-9811-37b1513c4dcd.mp4" frameborder="0" allowfullscreen></video>
 
 ---
 

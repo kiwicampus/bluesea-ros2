@@ -141,7 +141,7 @@ bool udp_talk(void* hnd,
 	UDPInfo* info = (UDPInfo*)hnd;
 	int fd_udp = info->fd_udp;
 
-	printf("send command : \'%s\' \n", cmd);
+	// printf("send command : \'%s\' \n", cmd);
 
 	unsigned short sn = rand();
 	int rt = send_cmd_udp(fd_udp, info->lidar_ip, info->lidar_port, 0x0043, sn, n, cmd);

@@ -200,7 +200,7 @@ int GetAllFans(HPublish pub, bool with_resample, double resample_res, RawData** 
 
         if (!circle || total != 3600)
         {
-            printf("%d drop %d fans\n", total, cnt);
+            // printf("%d drop %d fans\n", total, cnt);
             // clean imcomplent datas
             for (int i = 0; i < cnt; i++) delete fans[i];
             cnt = 0;
@@ -748,7 +748,9 @@ int main(int argc, char* argv[])
     auto laser_pub = node->create_publisher<sensor_msgs::msg::LaserScan>("scan", rclcpp::SensorDataQoS());
 
     rclcpp::WallRate loop_rate(100);
-
+    ROS_INFO("Starting LIDAR motor \n");
+    char cmd[] = "LSTARH";
+    SendCmd(6, cmd);
     while (rclcpp::ok())
     {
         rclcpp::spin_some(node);

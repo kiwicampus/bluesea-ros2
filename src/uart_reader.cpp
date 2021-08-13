@@ -162,7 +162,7 @@ bool quirk_talk(void* hnd,
 	UartInfo* info = (UartInfo*)hnd;
 	int fd = info->fd_uart;
 
-	printf("send command : \'%s\' \n", cmd);
+	// printf("send command : \'%s\' \n", cmd);
 	write(fd, cmd, n);
 			
 	char buf[4096*2];
@@ -201,7 +201,7 @@ bool quirk_talk(void* hnd,
 	}
 #endif
 
-	printf("read %d bytes, not found %s\n", nr, hdr_str);
+	// printf("read %d bytes, not found %s\n", nr, hdr_str);
 	return false;
 }
 

@@ -585,7 +585,7 @@ static int MsgProc(Parser* parser, int len, unsigned char* buf)
 		return 1;
 	}
 		
-	printf("unkown %d bytes %02x %02x %02x %02x\n", len, buf[0], buf[1], buf[2], buf[3]);
+	printf("[BLUESEA2]: unkown %d bytes %02x %02x %02x %02x\n", len, buf[0], buf[1], buf[2], buf[3]);
 	strange = true;
 	return 0;
 }
@@ -807,7 +807,7 @@ int ParserRunStream(HParser hP, int len, unsigned char* bytes, RawData* fans[])
 		fans[i]->ros_angle = LidarAng2ROS(fans[i]->angle + fans[i]->span);
 	}
 #endif
-	if (strange) printf("len %d+%d used %d fan %d\n", len, parser->rest_len, used, nfan);
+	if (strange) printf("[BLUESEA2]: len %d+%d used %d fan %d\n", len, parser->rest_len, used, nfan);
 
 	parser->rest_len = len - used;
 	if (parser->rest_len > 0) {
@@ -815,7 +815,7 @@ int ParserRunStream(HParser hP, int len, unsigned char* bytes, RawData* fans[])
 	}
 
 	delete[] buf;
-	if (strange) printf("buf deleted\n");
+	if (strange) printf("[BLUESEA2]: buf deleted\n");
 
 	return nfan;
 }
@@ -949,7 +949,7 @@ int ParserRun(HParser hP, int len, unsigned char* buf, RawData* fans[])
 		RawData* fan = GetData0x99(hdr, buf, parser->with_chk);
 		if (fan)
 		{
-			//printf("set [%d] %d\n", *nfan, fan->angle);
+			// printf("[BLUESEA2]: set [%d] %d\n", *nfan, fan->angle);
 			fans[0] = fan;
 			return 1;
 		}
@@ -975,7 +975,7 @@ bool ParserScript(HParser hP, Script script, void* hnd)
 		{
 			if (script(hnd, 6, "LUUIDH", 12, "PRODUCT SN: ", 9, g_uuid))
 			{
-				printf("get product SN : \'%s\'\n", g_uuid);
+				printf("[BLUESEA2]: get product SN : \'%s\'\n", g_uuid);
 				break;
 			}
 		}
@@ -988,7 +988,7 @@ bool ParserScript(HParser hP, Script script, void* hnd)
 			const char* cmd = (parser->init_states & DF_UNIT_IS_MM) ?  "LMDMMH" : "LMDCMH"; 
 			if (script(hnd, 6, cmd, 10, "SET LiDAR ", 9, buf) )
 			{
-				printf("set LiDAR unit to %s\n", buf);
+				printf("[BLUESEA2]: set LiDAR unit to %s\n", buf);
 				break;
 			}
 		}
@@ -1001,7 +1001,7 @@ bool ParserScript(HParser hP, Script script, void* hnd)
 			const char* cmd = (parser->init_states & DF_WITH_INTENSITY) ? "LOCONH" : "LNCONH"; 
 			if (script(hnd, 6, cmd, 6, "LiDAR ", 5, buf) )
 			{
-				printf("set LiDAR confidence to %s\n", buf);
+				printf("[BLUESEA2]: set LiDAR confidence to %s\n", buf);
 				break;
 			}
 		}
@@ -1015,7 +1015,7 @@ bool ParserScript(HParser hP, Script script, void* hnd)
 			const char* cmd = (parser->init_states & DF_DESHADOWED) ? "LFFF1H" : "LFFF0H"; 
 			if (script(hnd, 6, cmd, 6, "LiDAR ", 5, buf) )
 			{
-				printf("set LiDAR shadow filter to %s\n", buf);
+				printf("[BLUESEA2]: set LiDAR shadow filter to %s\n", buf);
 				break;
 			}
 		}
@@ -1029,7 +1029,7 @@ bool ParserScript(HParser hP, Script script, void* hnd)
 			const char* cmd = (parser->init_states & DF_SMOOTHED) ? "LSSS1H" : "LSSS0H"; 
 			if (script(hnd, 6, cmd, 6, "LiDAR ", 5, buf) )
 			{
-				printf("set LiDAR smooth to %s\n", buf);
+				printf("[BLUESEA2]: set LiDAR smooth to %s\n", buf);
 				break;
 			}
 		}
@@ -1043,7 +1043,7 @@ bool ParserScript(HParser hP, Script script, void* hnd)
 			sprintf(cmd, "LSRPM:%dH", parser->init_rpm);
 			if (script(hnd, strlen(cmd), cmd, 3, "RPM", 5, buf) )
 			{
-				printf("set RPM to %s\n", buf);
+				printf("[BLUESEA2]: set RPM to %s\n", buf);
 				break;
 			}
 		}
@@ -1062,7 +1062,7 @@ bool ParserScript(HParser hP, Script script, void* hnd)
 			char pattern[] = "set resolution ";
 			if (script(hnd, strlen(cmd), cmd, strlen(pattern), pattern, 1, buf) )
 			{
-				printf("set resolution %s\n", buf);
+				printf("[BLUESEA2]: set resolution %s\n", buf);
 				break;
 			}
 		}

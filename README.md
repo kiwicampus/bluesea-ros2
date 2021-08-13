@@ -11,7 +11,7 @@
 ---
 
 <p align="center">
-    <video width="560" height="315" src="https://user-images.githubusercontent.com/39452483/129423561-7d5f272e-782d-4bcc-9811-37b1513c4dcd.mp4" frameborder="0" allowfullscreen="1" autoplay="1" loop="1"></video>
+    <video width="560" height="315" src="https://user-images.githubusercontent.com/39452483/129423561-7d5f272e-782d-4bcc-9811-37b1513c4dcd.mp4" autoplay="1" loop="1"></video>
 </p>
 
 <p align="center">

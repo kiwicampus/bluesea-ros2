@@ -6,7 +6,7 @@
 **Mail:** _davidson@kiwibot.com_ \
 **Kiwi Campus / AI & Robotics Team**
 
-**Based on: ROS2 [Bluesea2 Package](https://github.com/BlueSeaLidar/bluesea2) by Lanhai** 
+**Based on: ROS2 [Bluesea2 Package](https://github.com/BlueSeaLidar/bluesea-ros2) by Lanhai** 
 
 ---
 

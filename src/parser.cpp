@@ -585,7 +585,7 @@ static int MsgProc(Parser* parser, int len, unsigned char* buf)
 		return 1;
 	}
 		
-	printf("[BLUESEA2]: unkown %d bytes %02x %02x %02x %02x\n", len, buf[0], buf[1], buf[2], buf[3]);
+	// printf("[BLUESEA2]: unkown %d bytes %02x %02x %02x %02x\n", len, buf[0], buf[1], buf[2], buf[3]);
 	strange = true;
 	return 0;
 }
@@ -807,7 +807,7 @@ int ParserRunStream(HParser hP, int len, unsigned char* bytes, RawData* fans[])
 		fans[i]->ros_angle = LidarAng2ROS(fans[i]->angle + fans[i]->span);
 	}
 #endif
-	if (strange) printf("[BLUESEA2]: len %d+%d used %d fan %d\n", len, parser->rest_len, used, nfan);
+	// if (strange) printf("[BLUESEA2]: len %d+%d used %d fan %d\n", len, parser->rest_len, used, nfan);
 
 	parser->rest_len = len - used;
 	if (parser->rest_len > 0) {
@@ -815,7 +815,7 @@ int ParserRunStream(HParser hP, int len, unsigned char* bytes, RawData* fans[])
 	}
 
 	delete[] buf;
-	if (strange) printf("[BLUESEA2]: buf deleted\n");
+	// if (strange) printf("[BLUESEA2]: buf deleted\n");
 
 	return nfan;
 }

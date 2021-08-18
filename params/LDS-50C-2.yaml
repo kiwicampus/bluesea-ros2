@@ -7,7 +7,7 @@ bluesea_node:
     rate_list: 500000, 768000, 921600   # Available list of baudrates
     baud_rate: 500000                   # Choosen Baudrate
     raw_bytes: 3                        # Packat mode: 2bytes or 3bytes
-    max_dist: 50.0                      # Maximum distance to get measurement
+    max_dist: 20.0                      # Maximum distance to get measurement
     output_360: true                    # Enable feedback from all directions
     output_scan: true                   # Enable publish LaserScan data
     output_cloud: false                 # Enable publish PointCloud data

@@ -11,7 +11,7 @@ bluesea_node:
     output_360: true                    # Enable feedback from all directions
     output_scan: true                   # Enable publish LaserScan data
     output_cloud: false                 # Enable publish PointCloud data
-    with_angle_filter: false            # Filter Scan Output to a provided angle
+    with_angle_filter: true            # Filter Scan Output to a provided angle
     min_angle: -3.14159                 # Minimum allowed angle
     max_angle: 3.14159                  # Maximum allowed angle
     hard_resample: false                # Enable Hard Resample
@@ -23,7 +23,7 @@ bluesea_node:
     rpm: 600                            # LIDAR engine RPM
     with_smooth: true                   # LIDAR data smooth filter
     with_deshadow: true                 # LIDAR data shadow filter
-    inverted: false                     # Invert LIDAR output     
+    inverted: true                     # Invert LIDAR output     
     reversed: false                     # Reverse LIDAR output
     lidar_ip: 192.168.158.91            # IP in case UDP
     lidar_port: 6543                    # LIDAR port for UDP connection

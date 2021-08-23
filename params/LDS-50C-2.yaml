@@ -2,7 +2,7 @@ bluesea_node:
   ros__parameters:
     type: uart                          # Type of connection uart/udp
     platform: LDS-50C-2                 # LIDAR version  LDS-50C-(2 or C30E)
-    port: /dev/ttyUSB0                  # USB port in case serial communication
+    port: /dev/ttyTHS0                  # USB port in case serial communication
     frame_id: laser_link                # Current Frame for our LIDAR scan
     rate_list: 500000, 768000, 921600   # Available list of baudrates
     baud_rate: 500000                   # Choosen Baudrate

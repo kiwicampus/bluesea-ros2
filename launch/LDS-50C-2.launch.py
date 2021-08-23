@@ -21,10 +21,10 @@ def generate_launch_description():
     )
 
     driver_node = Node(
-        node_name="bluesea_node",
+        name="bluesea_node",
         namespace="/",
         package="bluesea2",
-        node_executable="bluesea_node",
+        executable="bluesea_node",
         output="screen",
         # emulate_tty=True,
         parameters=[parameter_file],

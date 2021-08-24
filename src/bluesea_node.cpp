@@ -766,10 +766,7 @@ int main(int argc, char* argv[])
                 for (int i = 0; i < n; i++) delete fans[i];
             }
         }
-        else
-        {
-            loop_rate.sleep();
-        }
+        loop_rate.sleep();
     }
 
     if (g_type == "uart")

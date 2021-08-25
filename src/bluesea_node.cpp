@@ -487,7 +487,7 @@ void PublishLaserScan(rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr 
         {
             msg->angle_min = max_ang;
             msg->angle_max = min_ang;
-            msg->angle_increment = (min_ang - max_ang) / N;
+            msg->angle_increment = (min_ang - max_ang) / (N - 1);
         }
     }
     else
@@ -502,7 +502,7 @@ void PublishLaserScan(rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr 
         {
             msg->angle_min = M_PI;
             msg->angle_max = -M_PI;
-            msg->angle_increment = -M_PI * 2 / N;
+            msg->angle_increment = -M_PI * 2 / (N - 1);
         }
     }
 

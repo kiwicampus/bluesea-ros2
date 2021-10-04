@@ -28,6 +28,8 @@ def generate_launch_description():
         output="screen",
         # emulate_tty=True,
         parameters=[parameter_file],
+        respawn=True,
+        respawn_delay=5.0,
     )
 
     # tf2_node = Node(

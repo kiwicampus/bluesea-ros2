@@ -12,10 +12,10 @@ import os
 
 def generate_launch_description():
     share_dir = get_package_share_directory("bluesea2")
-    parameter_file = LaunchConfiguration("params_file")
+    parameter_file = LaunchConfiguration("params_file_bluesea2")
 
     params_declare = DeclareLaunchArgument(
-        "params_file",
+        "params_file_bluesea2",
         default_value=os.path.join(share_dir, "params", "LDS-50C-2.yaml"),
         description="FPath to the ROS2 parameters file to use.",
     )

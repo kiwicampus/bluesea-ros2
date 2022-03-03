@@ -72,12 +72,12 @@ void PublishData(HPublish pub, int n, RawData** fans)
     }
     pthread_mutex_unlock(&hub->mtx);
 
-    if (skip > 0) printf("skip %d\n", skip);
+    // if (skip > 0) printf("skip %d\n", skip);
     for (int i = 0; i < skip; i++)
     {
         delete drop[i];
     }
-    if (skip > 0) printf("skiped\n");
+    // if (skip > 0) printf("skiped\n");
 }
 
 #if 0

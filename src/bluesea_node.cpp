@@ -634,7 +634,7 @@ void split(const std::string& s, char delim, int* elems)
 
 #define READ_PARAM(TYPE, NAME, VAR, INIT) \
     TYPE VAR = INIT;                      \
-    node->declare_parameter(NAME);        \
+    node->declare_parameter<TYPE>(NAME, INIT);        \
     node->get_parameter(NAME, VAR);
 
 int main(int argc, char* argv[])

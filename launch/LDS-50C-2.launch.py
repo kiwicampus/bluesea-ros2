@@ -32,6 +32,17 @@ def generate_launch_description():
         respawn_delay=5.0,
     )
 
+    # Lidar 2D filter Params
+    lidar2d_filter_params_file = None
+    try:
+        lidar2d_filter_params_file = os.path.join(
+            get_package_share_directory("navigation"),
+            "config",
+            "lidar_filter_0deg.yaml",
+        )
+    except Exception as e:
+        print(f"Collision monitor failed reading params file. Got: {e}")
+
     # tf2_node = Node(
     #     package="tf2_ros",
     #     executable="static_transform_publisher",
@@ -54,5 +65,14 @@ def generate_launch_description():
             params_declare,
             driver_node,
             # tf2_node,
+            Node(
+                executable="scan_to_scan_filter_chain",
+                package="laser_filters",
+                exec_name="scan_filter",
+                parameters=[lidar2d_filter_params_file],
+                output="screen",
+                respawn=True,
+                respawn_delay=5.0,
+            ),
         ]
     )

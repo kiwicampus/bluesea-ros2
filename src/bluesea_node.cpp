@@ -12,7 +12,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time_source.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
-#include "std_srvs/srv/empty.hpp"
+#include "std_srvs/srv/trigger.hpp"
 
 #include "rclcpp/clock.hpp"
 
@@ -577,27 +577,27 @@ bool should_start = true;
 int count_start = 0;
 int count_stop = 0;
 // service call back function
-bool stop_motor(const std::shared_ptr<std_srvs::srv::Empty::Request> req,
-                std::shared_ptr<std_srvs::srv::Empty::Response> res)
+bool stop_motor(const std::shared_ptr<std_srvs::srv::Trigger::Request> req,
+                std::shared_ptr<std_srvs::srv::Trigger::Response> res)
 {
-    (void)res;
     (void)req;
     should_start = false;
     ROS_INFO("Stop LIDAR motor");
     char cmd[] = "LSTOPH";
-    return SendCmd(6, cmd);
+    res->success = SendCmd(6, cmd);
+    return res->success;
 }
 
 // service call back function
-bool start_motor(const std::shared_ptr<std_srvs::srv::Empty::Request> req,
-                 std::shared_ptr<std_srvs::srv::Empty::Response> res)
+bool start_motor(const std::shared_ptr<std_srvs::srv::Trigger::Request> req,
+                 std::shared_ptr<std_srvs::srv::Trigger::Response> res)
 {
-    (void)res;
     (void)req;
     should_start = true;
     ROS_INFO("Start LIDAR motor");
     char cmd[] = "LSTARH";
-    return SendCmd(6, cmd);
+    res->success = SendCmd(6, cmd);
+    return res->success;
 }
 
 uint32_t get_device_ability(const std::string& platform)
@@ -643,10 +643,10 @@ int main(int argc, char* argv[])
     auto node = rclcpp::Node::make_shared("bluesea_node");
 
     /* create stop motor service */
-    auto stop_motor_service = node->create_service<std_srvs::srv::Empty>("/stop_motor", &stop_motor);
+    auto stop_motor_service = node->create_service<std_srvs::srv::Trigger>("/stop_motor", &stop_motor);
 
     /* create start motor service */
-    auto start_motor_service = node->create_service<std_srvs::srv::Empty>("/start_motor", &start_motor);
+    auto start_motor_service = node->create_service<std_srvs::srv::Trigger>("/start_motor", &start_motor);
 
     READ_PARAM(std::string, "type", type, "uart");
     g_type = type;
